@@ -13,6 +13,6 @@ export const getCityCategories = (restaurants: Record<string, any>) => {
 export const getRestaurantsAsCards = (restaurants: Record<string, any>) => <Card[]>restaurants.map(
   (restaurant: RestaurantPost) => ({
     categories: restaurant.frontmatter.category.join(', '),
-    href: `${restaurant.frontmatter.city}/${restaurant.frontmatter.slug}`,
+    href: `${restaurant.url}`,
     title: restaurant.frontmatter.title,
   }));

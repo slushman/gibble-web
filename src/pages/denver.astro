@@ -6,5 +6,4 @@ const allCityRestaurants = await Astro.glob('../pages/denver/*.md*');
 const cards = getRestaurantsAsCards(allCityRestaurants);
 const categories = getCityCategories(allCityRestaurants);
 ---
-
 <City cards={cards} categories={categories} city="denver" name="Denver" />
