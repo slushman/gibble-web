@@ -8,7 +8,7 @@ module.exports = {
       },
       backgroundPosition: {
         all: "99.9%",
-        none: 0,
+        zero: 0,
       },
       backgroundSize: {
         over: "400%",

@@ -44,15 +44,15 @@ const thisYear = new Date().getFullYear();
 </html>
 <style is:global>
   :root {
-    --darker: 17, 139, 11;
-    --dark: 31, 168, 8;
-    --medium: 46, 197, 6;
-    --accent: 60, 226, 3;
-    --lighter: 74, 255, 0;
+    --darker: rgb(17, 139, 11);
+    --dark: rgb(31, 168, 8);
+    --medium: rgb(46, 197, 6);
+    --accent: rgb(60, 226, 3);
+    --lighter: rgb(74, 255, 0);
     --accent-gradient: linear-gradient(
       45deg,
-      rgb(var(--accent)),
-      rgb(var(--darker)) 30%,
+      var(--accent),
+      var(--darker) 30%,
       white 60%
     );
   }
@@ -79,5 +79,9 @@ const thisYear = new Date().getFullYear();
   }
   p {
     color: #444;
+  }
+
+  article > p {
+    margin-bottom: 1.5em;
   }
 </style>
