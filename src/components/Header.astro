@@ -1,0 +1,14 @@
+---
+import SiteTitle from '@components/SiteTitle';
+import { checkIsHome } from '@utils';
+
+const { url } = Astro.request;
+const isHome = checkIsHome(url);
+---
+{isHome && (
+  <h1 class=""><SiteTitle /></h1>
+)}
+
+{!isHome && (
+  <p><SiteTitle /></p>
+)}

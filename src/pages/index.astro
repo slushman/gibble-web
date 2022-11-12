@@ -1,0 +1,33 @@
+---
+import Layout from "@layouts/Layout";
+import CardList from "@components/CardList";
+
+const cards = [
+  {
+    href: '/denver',
+    title: "Denver",
+  },
+  {
+    href: "/kansas-city",
+    title: "Kansas City",
+  },
+  {
+    href: "/chicago",
+    title: "Chicago",
+  },
+  {
+    href: "/seattle",
+    title: "Seattle",
+  },
+];
+---
+
+<Layout title="Gibble">
+  <div class="my-4 mx-0 p-0.5 rounded-lg bg-none bg-over bg-accent-gradiant">
+    <div class="leading-7 p-4 rounded-md bg-white opacity-90">
+      <p>Find options for dining out with food allergies</p>
+      <p>Select a city below.</p>
+    </div>
+  </div>
+  <CardList cards={cards} />
+</Layout>

@@ -1,0 +1,22 @@
+---
+import Layout from "@layouts/Layout";
+import CardList from "@components/CardList";
+
+import type { Card } from '@types';
+
+interface Props {
+  cards: Card[];
+  categories: string[]; // use for filters
+  city: string;
+  name: string;
+}
+
+const { cards, categories, city, name } = Astro.props;
+---
+
+<Layout title={`${name} - Gibble`}>
+  <section class="my-4"><a href={'/'}>⬅︎ Back to Home</a></section>
+  <h1>{name}</h1>
+  <p>Display filters for restaurant types here.</p>
+  <CardList cards={cards} />
+</Layout>

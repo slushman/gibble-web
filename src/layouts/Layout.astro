@@ -1,0 +1,83 @@
+---
+import Header from '@components/Header';
+
+export interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+
+const thisYear = new Date().getFullYear();
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="title" content={title} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script
+      async
+      data-dnt="false"
+      data-host="https://microanalytics.io"
+      defer
+      id="ZwSg9rf6GA"
+      src="https://microanalytics.io/js/script.js"
+    ></script>
+  </head>
+  <body>
+    <main class="m-auto">
+      <header class="">
+        <Header />
+      </header>
+      <slot />
+      <footer class="my-4">
+        <div class="text-center">
+          {`© ${thisYear} Gibble`}
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>
+<style is:global>
+  :root {
+    --darker: 17, 139, 11;
+    --dark: 31, 168, 8;
+    --medium: 46, 197, 6;
+    --accent: 60, 226, 3;
+    --lighter: 74, 255, 0;
+    --accent-gradient: linear-gradient(
+      45deg,
+      rgb(var(--accent)),
+      rgb(var(--darker)) 30%,
+      white 60%
+    );
+  }
+  html {
+    font-family: system-ui, sans-serif;
+    background-color: #f6f6f6;
+  }
+  main {
+    padding: 1.5rem;
+    max-width: 80ch;
+  }
+  code {
+    font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
+      DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
+  }
+  h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0;
+  }
+  h2 {
+    font-size: 1.25rem;
+    transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  p {
+    color: #444;
+  }
+</style>

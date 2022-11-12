@@ -1,0 +1,17 @@
+---
+import Layout from "@layouts/Layout";
+const { frontmatter } = Astro.props;
+const { category, city, title } = frontmatter;
+
+const categories = category.join(', ');
+---
+<Layout title={title}>
+  <section class="my-4"><a href={`/${city}`}>⬅︎ Back to {city.charAt(0).toUpperCase()
+    + city.slice(1)}</a></section>
+
+  <h1>{title}</h1>
+  <section class="mb-4">Categories: {categories}</section>
+  <article class="post">
+    <slot />
+  </article>
+</Layout>
