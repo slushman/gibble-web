@@ -3,21 +3,9 @@ import Layout from "@layouts/Layout";
 import CardList from "@components/CardList";
 
 const cards = [
-{
-    href: "/chicago",
-    title: "Chicago",
-  },
   {
     href: '/denver',
     title: "Denver",
-  },
-  {
-    href: "/kansas-city",
-    title: "Kansas City",
-  },
-  {
-    href: "/seattle",
-    title: "Seattle",
   },
 ];
 ---
@@ -25,8 +13,8 @@ const cards = [
 <Layout title="Gibble">
   <div class="my-4 mx-0 p-0.5 rounded-lg bg-zero bg-over bg-accent-gradiant">
     <div class="leading-7 p-4 rounded-md bg-white opacity-90">
-      <p>Find options for dining out with food allergies</p>
-      <p>Select a city below.</p>
+      <p>Welcome to Gibble, where we help those with special diets enjoy dining out!</p>
+      <p>Select a city below to find a restaurant.</p>
     </div>
   </div>
   <CardList cards={cards} />

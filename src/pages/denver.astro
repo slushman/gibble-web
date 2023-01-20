@@ -1,9 +1,17 @@
 ---
 import City from "@layouts/City";
-import { getCityCategories, getRestaurantsAsCards } from '@utils';
+import { getAllergensFromCityRestaurants, getCityCategories, getRestaurantsAsCards } from '@utils';
 
-const allCityRestaurants = await Astro.glob('../pages/denver/*.md*');
+const allCityRestaurants = await Astro.glob('./restaurants/denver/*.mdx');
 const cards = getRestaurantsAsCards(allCityRestaurants);
 const categories = getCityCategories(allCityRestaurants);
+const allergens = getAllergensFromCityRestaurants(allCityRestaurants);
 ---
-<City cards={cards} categories={categories} city="denver" name="Denver" />
+<City
+  allergens={allergens}
+  cards={cards}
+  categories={categories}
+  city="denver"
+  name="Denver"
+  restaurants={allCityRestaurants}
+/>

@@ -1,17 +1,16 @@
 ---
-interface Props {
-  categories: string;
-  href: string;
-  title: string;
+import type { Card } from 'src/types';
+
+interface Props extends Card {
+
 }
 
-const { categories, href, title } = Astro.props;
+const { allergens, category, href, title } = Astro.props;
 ---
-
 <li class="link-card list-none flex p-0.5 bg-white bg-accent-gradiant bg-over rounded-lg bg-all shadow-md shadow-trans-black transition-[background-position] duration-300 cubic-bezier delay-[0]">
 	<a class="w-full no-underline leading-6 py-4 px-5 rounded-md bg-white opacity-80 text-gray-900" href={href}>
 		<h2 class="m-0 text-xl">{title}</h2>
-		<p class="mb-0 mt-2">{categories}</p>
+		<p class="mb-0 mt-2">{category}</p>
 	</a>
 </li>
 

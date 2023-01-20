@@ -20,6 +20,7 @@ module.exports = {
         accent: "var(--accent)",
         lighter: "var(--lighter)",
         "trans-black": "rgba(0, 0, 0, 0.1)",
+        text: "#444",
       },
       transitionTimingFunction: {
         "cubic-bezier": "cubic-bezier(0.22, 1, 0.36, 1)",

@@ -1,22 +1,27 @@
 ---
 import Layout from "@layouts/Layout";
 import CardList from "@components/CardList";
+import CategoryFilters from "@components/CategoryFilters";
+import { capitalizeFirst } from '@utils';
 
 import type { Card } from '@types';
 
 interface Props {
+  allergens: string[];
   cards: Card[];
   categories: string[]; // use for filters
   city: string;
   name: string;
+  restaurants: Record<string, any>[];
 }
 
-const { cards, categories, city, name } = Astro.props;
+const { allergens, cards, categories, city, name, restaurants } = Astro.props;
+const capCity = capitalizeFirst(city);
 ---
 
 <Layout title={`${name} - Gibble`}>
   <section class="my-4"><a href={'/'}>⬅︎ Back to Home</a></section>
   <h1>{name}</h1>
-  <p>Display filters for restaurant types here.</p>
-  <CardList cards={cards} />
+  <CategoryFilters categories={categories} city={city} />
+  <CardList cards={cards} title={`Restaurants in ${capCity}`} />
 </Layout>

@@ -1,23 +1,29 @@
 ---
 import type { Card as CardType } from '@types';
 
-import Card from '@components/Card';
+import Card from 'src/components/Card.astro';
 
 interface Props {
   cards: CardType[];
+  title?: string;
 }
 
-const { cards } = Astro.props;
+const { cards, title } = Astro.props;
 ---
-<ul role="list" class="link-card-grid grid gap-4 p-0">
-  {cards.map(({ categories, href, title }: CardType) => (
-    <Card
-      categories={categories}
-      href={href}
-      title={title}
-    />
-  ))}
-</ul>
+<section>
+  <h2>{title}</h2>
+  <ul role="list" class="link-card-grid grid gap-4 p-0">
+    {cards.map(({ allergens, category, href, title, website }: CardType) => (
+      <Card
+        allergens={allergens}
+        category={category}
+        href={href}
+        title={title}
+        website={website}
+      />
+    ))}
+  </ul>
+</section>
 
 <style>
 	.link-card-grid {

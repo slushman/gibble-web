@@ -1,18 +1,20 @@
 ---
 import Layout from "@layouts/Layout";
-const { frontmatter } = Astro.props;
-const { category, city, title } = frontmatter;
+import { capitalizeFirst } from 'src/utils';
 
-const categories = category.join(', ');
+const { frontmatter } = Astro.props;
+const { category, city, title, videoName, videoUrl, website } = frontmatter;
 ---
 <Layout title={title}>
-  <section class="my-4"><a href={`/${city}`}>⬅︎ Back to {city.charAt(0).toUpperCase()
-    + city.slice(1)}</a></section>
-
+  <section class="my-4"><a href={`/${city}`}>⬅︎ Back to {capitalizeFirst(city)}</a></section>
   <h1>{title}</h1>
-  <section class="mb-4 text-darker">Categories: {categories}</section>
+  <section class="mb-4 text-darker">
+    <span>Category: <a href={`/${city}/${category!.toLowerCase()}/`} class="mb-0 mt-2">{category}</a></span>
+  </section>
   <article class="post">
     <slot />
+    {videoUrl && videoName && (<p>{title} was featured in the video <a class="text-darker" href={videoUrl}>{videoName}</a>.</p>)}
   </article>
+  {website && (<a class="text-center text-darker mt-8" href={website}>Visit {title} website</a>)}
 </Layout>
 
