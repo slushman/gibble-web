@@ -34,10 +34,11 @@ const thisYear = new Date().getFullYear();
         <Header />
       </header>
       <slot />
-      <footer class="my-4">
+      <footer class="flex justify-around my-4">
         <div class="text-center flex justify-center flex-col">
           {`© ${thisYear} Gibble`}
         </div>
+        <a href="/disclaimer">Disclaimer</a>
       </footer>
     </main>
   </body>
