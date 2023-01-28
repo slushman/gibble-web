@@ -13,10 +13,10 @@ const { cards, title } = Astro.props;
 <section>
   <h2>{title}</h2>
   <ul role="list" class="link-card-grid grid gap-4 p-0">
-    {cards.map(({ allergens, category, href, title, website }: CardType) => (
+    {cards.map(({ allergens, categories, href, title, website }: CardType) => (
       <Card
         allergens={allergens}
-        category={category}
+        categories={categories}
         href={href}
         title={title}
         website={website}

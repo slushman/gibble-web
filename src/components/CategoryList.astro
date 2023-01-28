@@ -1,0 +1,25 @@
+---
+interface Props {
+  categories: string[];
+  city: string;
+}
+
+const { categories, city } = Astro.props;
+console.log({ categories });
+---
+<section class="mb-4 text-darker">
+  Categories: <ul class="inline-flex flex-row list-none"> {categories.map((category) => (
+    <li><a href={`/${city}/${category!.toLowerCase()}/`} class="mb-0 mt-2">{category}</a></li>
+  ))}
+  </ul>
+</section>
+
+<style>
+  ul li:not(:last-child) {
+    margin-right: 0.25rem;
+  }
+
+  ul li:not(:last-child):after {
+    content: ",";
+  }
+</style>
