@@ -12,9 +12,10 @@ const { categories, city } = Astro.props;
 const fullCategories = categorySlugs(categories);
 
 ---
-<section>
-  <h2>Filter By Category</h2>
-  <ul class="flex mb-8 gap-4 p-0" role="list">
+<section class="wrap-collabsible">
+  <input id="collapsible" class="toggle hidden" type="checkbox">
+  <label for="collapsible" class="lbl-toggle py-4 block font-bold cursor-pointer text-xl rounded-lg">Filter By Category</label>
+  <ul class="collapsible-content flex mb-8 gap-4 p-0 flex-wrap overflow-hidden max-h-0" role="list">
     {fullCategories.map(({ category, slug }) => (
       <li class="link-card list-none flex p-0.5 bg-white bg-accent-gradiant bg-over rounded-lg bg-all shadow-md shadow-trans-black transition-[background-position] duration-300 cubic-bezier delay-[0]">
         <a class="w-full no-underline leading-6 py-2 px-4 rounded-md bg-white opacity-80 text-gray-900" href={`/${city}/${slug}/`}>{category}</a>
@@ -27,4 +28,41 @@ const fullCategories = categorySlugs(categories);
 	.link-card:is(:hover, :focus-within) {
 		background-position: 0;
 	}
+
+  .lbl-toggle {
+    transition: all 0.25s ease-out;
+  }
+
+  .lbl-toggle::after {
+    content: ' ';
+    display: inline-block;
+
+    border-left: 5px solid transparent;
+    border-bottom: 5px solid currentColor;
+    border-right: 5px solid transparent;
+
+    vertical-align: middle;
+    margin-left: .7rem;
+    transform: translateY(-2px);
+
+    transition: transform .2s ease-out;
+  }
+
+  .collapsible-content {
+    transition: max-height .25s ease-in-out;
+    transition: padding .25s ease-in-out;
+  }
+
+  .toggle:checked + .lbl-toggle + .collapsible-content {
+    max-height: 100vh;
+  }
+
+  .toggle:checked + .lbl-toggle::after {
+    transform: rotate(180deg) translateX(-3px);
+  }
+
+  .toggle:checked + .lbl-toggle {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
 </style>

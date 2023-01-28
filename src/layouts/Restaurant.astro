@@ -1,16 +1,15 @@
 ---
 import Layout from "@layouts/Layout";
+import CategoryList from "src/components/CategoryList.astro";
 import { capitalizeFirst } from 'src/utils';
 
 const { frontmatter } = Astro.props;
-const { category, city, title, videoName, videoUrl, website } = frontmatter;
+const { categories, city, title, videoName, videoUrl, website } = frontmatter;
 ---
 <Layout title={title}>
   <section class="my-4"><a href={`/${city}`}>⬅︎ Back to {capitalizeFirst(city)}</a></section>
   <h1>{title}</h1>
-  <section class="mb-4 text-darker">
-    <span>Category: <a href={`/${city}/${category!.toLowerCase()}/`} class="mb-0 mt-2">{category}</a></span>
-  </section>
+  <CategoryList categories={categories} city={city} />
   <article class="post">
     <slot />
     {videoUrl && videoName && (<p>{title} was featured in the video <a class="text-darker" href={videoUrl}>{videoName}</a>.</p>)}

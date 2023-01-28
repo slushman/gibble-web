@@ -1,6 +1,6 @@
 export interface Card {
   allergens?: string[];
-  category?: string;
+  categories?: string[];
   href: string;
 	title: string;
   website?: string;
@@ -10,7 +10,7 @@ export type RestaurantFrontmatterKey = keyof RestaurantFrontmatter;
 
 export type RestaurantFrontmatter = {
   allergens: string[];
-  category: string[];
+  categories: string[];
   city: string;
   draft: boolean;
   layout: string;

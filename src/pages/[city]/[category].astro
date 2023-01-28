@@ -15,9 +15,7 @@ export async function getStaticPaths() {
     const uniqueCategories = getCategoriesFromPosts(cityPosts);
 
     uniqueCategories.forEach((category: string) => {
-      const categoryPosts = cityPosts.filter((post) => post.frontmatter.category === category);
-
-      console.log('', { categoryPosts, uniqueCategories });
+      const categoryPosts = cityPosts.filter((post) => post.frontmatter.categories.includes(category));
 
       returnedPaths.push({
         params: { city, category: category.toLowerCase() },

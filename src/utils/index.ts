@@ -1,4 +1,4 @@
-import type { Card, RestaurantPost, RestaurantFrontmatter, RestaurantFrontmatterKey } from '@types';
+import type * as types from '@types';
 
 export const capitalizeFirst = (stringToCapitalize: string) => stringToCapitalize.charAt(0).toUpperCase() + stringToCapitalize.slice(1);
 
@@ -33,16 +33,16 @@ export const checkIsHome = (url: string) => {
 };
 
 export const excludeDrafts = (posts: Record<string, any>) => {
-  return posts.filter((post: RestaurantPost) => post.frontmatter?.draft !== true);
+  return posts.filter((post: types.RestaurantPost) => post.frontmatter?.draft !== true);
 };
 
 export const filterRestaurantsByAllergen = (restaurants: Record<string, any>, allergen: string) => restaurants.filter(
-  (restaurant: RestaurantPost) => restaurant.frontmatter.allergens.includes(allergen)
+  (restaurant: types.RestaurantPost) => restaurant.frontmatter.allergens.includes(allergen)
 );
 
-export const getUniqueFrontmatterFromPosts = (posts: Record<string, any>, frontmatter: RestaurantFrontmatterKey) => {
+export const getUniqueFrontmatterFromPosts = (posts: Record<string, any>, frontmatter: types.RestaurantFrontmatterKey) => {
   const published = excludeDrafts(posts);
-  return unique(published.map((post: RestaurantPost) => post.frontmatter[frontmatter]).flat());
+  return unique(published.map((post: types.RestaurantPost) => post.frontmatter[frontmatter]).flat());
 };
 
 export const getAllergens = (posts: Record<string, any>) => {
@@ -63,20 +63,20 @@ export const getAllergens = (posts: Record<string, any>) => {
 
 export const getAllergenPostsByCity = (posts: Record<string, any>, allergen: string) => {
   const published = excludeDrafts(posts);
-  const allergenPosts = published.filter(({ frontmatter }: RestaurantPost) =>
+  const allergenPosts = published.filter(({ frontmatter }: types.RestaurantPost) =>
     frontmatter.allergens.includes(allergen)
   );
   return sortPostsByName(allergenPosts);
 };
 
 export const getAllergensFromCityRestaurants = (restaurants: Record<string, any>) => {
-  const allRestaurantAllergens = restaurants.map((restaurant: RestaurantPost) => restaurant.frontmatter.allergens);
+  const allRestaurantAllergens = restaurants.map((restaurant: types.RestaurantPost) => restaurant.frontmatter.allergens);
   return sortAlpha(unique(allRestaurantAllergens.flat()));
 };
 
 export const getCategories = (posts: Record<string, any>) => {
   const published = excludeDrafts(posts);
-  const allCats: string[] = published.map((post: RestaurantPost) => post.frontmatter.category).flat();
+  const allCats: string[] = published.map((post: types.RestaurantPost) => post.frontmatter.categories).flat();
   const uniqueFullCats = categorySlugs(unique(allCats));
 
   return uniqueFullCats.map(({ category, slug }) => ({
@@ -87,31 +87,31 @@ export const getCategories = (posts: Record<string, any>) => {
 
 export const getCategoriesFromPosts = (posts: Record<string, any>): string[] => {
   const published = excludeDrafts(posts);
-  return unique(published.map((post: RestaurantPost) => post.frontmatter.category).flat());
+  return unique(published.map((post: types.RestaurantPost) => post.frontmatter.categories).flat());
 };
 
 export const getCategoryPosts = (posts: Record<string, any>, category: string) => {
   const published = excludeDrafts(posts);
-  const categoryPosts = published.filter(({ frontmatter }: RestaurantPost) =>
-    frontmatter.category.includes(category)
+  const categoryPosts = published.filter(({ frontmatter }: types.RestaurantPost) =>
+    frontmatter.categories.includes(category)
   );
   return sortPostsByName(categoryPosts);
 };
 
 export const getCitiesFromPosts = (posts: Record<string, any>): string[] => {
   const published = excludeDrafts(posts);
-  return unique(published.map((post: RestaurantPost) => post.frontmatter.city).flat());
+  return unique(published.map((post: types.RestaurantPost) => post.frontmatter.city).flat());
 };
 
 export const getCityCategories = (restaurants: Record<string, any>) => {
-  const allCats = restaurants.map((restaurant: RestaurantPost) => restaurant.frontmatter.category).flat();
+  const allCats = restaurants.map((restaurant: types.RestaurantPost) => restaurant.frontmatter.categories).flat();
   return sortAlpha(unique(allCats));
 }
 
-export const getRestaurantsAsCards = (restaurants: Record<string, any>) => <Card[]>restaurants.map(
-  (restaurant: RestaurantPost) => ({
+export const getRestaurantsAsCards = (restaurants: Record<string, any>) => <types.Card[]>restaurants.map(
+  (restaurant: types.RestaurantPost) => ({
     allergens: restaurant.frontmatter.allergens,
-    category: restaurant.frontmatter.category,
+    categories: restaurant.frontmatter.categories,
     href: `${restaurant.url}`,
     title: restaurant.frontmatter.title,
     website: restaurant.frontmatter.website,
@@ -128,7 +128,7 @@ export const sortAlpha = (arrayToSort: string[]) => arrayToSort.sort((a: string,
 
 export const sortPostsByDate = (posts: Record<string, any>) => {
   return posts.sort(
-    (a: RestaurantPost, b: RestaurantPost) =>
+    (a: types.RestaurantPost, b: types.RestaurantPost) =>
       new Date(b.frontmatter.pubDate).valueOf() -
       new Date(a.frontmatter.pubDate).valueOf(),
   );
@@ -136,7 +136,7 @@ export const sortPostsByDate = (posts: Record<string, any>) => {
 
 export const sortPostsByName = (posts: Record<string, any>) => {
   return posts.sort(
-    (a: RestaurantPost, b: RestaurantPost) => {
+    (a: types.RestaurantPost, b: types.RestaurantPost) => {
       if (a.frontmatter.title < b.frontmatter.title) return -1;
       if (a.frontmatter.title > b.frontmatter.title) return 1;
       return 0;
