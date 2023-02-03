@@ -1,0 +1,17 @@
+---
+import type { Video } from '@types';
+
+interface Props {
+  title: string;
+  videos: Video[];
+}
+
+const { title, videos } = Astro.props;
+---
+<section class="my-4">
+  {title} was featured in the following videos:
+  <ul class="list-disc">{videos.map(({ name, url }) => (
+    <li><a class="text-darker" href={url}>{name}</a></li>
+  ))}
+  </ul>
+</section>
