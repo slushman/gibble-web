@@ -1,10 +1,11 @@
 ---
 import Layout from "@layouts/Layout";
 import CategoryList from "src/components/CategoryList.astro";
+import VideoList from "src/components/VideoList.astro";
 import { capitalizeFirst } from 'src/utils';
 
 const { frontmatter } = Astro.props;
-const { categories, city, title, videoName, videoUrl, website } = frontmatter;
+const { categories, city, title, videos, website } = frontmatter;
 ---
 <Layout title={title}>
   <section class="my-4"><a href={`/${city}`}>⬅︎ Back to {capitalizeFirst(city)}</a></section>
@@ -12,7 +13,7 @@ const { categories, city, title, videoName, videoUrl, website } = frontmatter;
   <CategoryList categories={categories} city={city} />
   <article class="post">
     <slot />
-    {videoUrl && videoName && (<p>{title} was featured in the video <a class="text-darker" href={videoUrl}>{videoName}</a>.</p>)}
+    {videos.length > 0 && (<VideoList title={title} videos={videos} />)}
   </article>
   {website && (<a class="text-center text-darker mt-8" href={website}>Visit {title} website</a>)}
 </Layout>

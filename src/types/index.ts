@@ -8,6 +8,11 @@ export interface Card {
 
 export type RestaurantFrontmatterKey = keyof RestaurantFrontmatter;
 
+export type Video = {
+  name: string;
+  url: string;
+};
+
 export type RestaurantFrontmatter = {
   allergens: string[];
   categories: string[];
@@ -17,6 +22,7 @@ export type RestaurantFrontmatter = {
   pubDate: string;
   slug: string;
   title: string;
+  videos: Video[];
   website: string;
 };
 
