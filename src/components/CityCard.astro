@@ -1,0 +1,12 @@
+---
+import type { Card } from 'src/types';
+
+interface Props extends Card {}
+
+const { href, title } = Astro.props;
+---
+<li class="link-card list-none flex bg-cover bg-center rounded-lg shadow-md shadow-trans-black" style={{ backgroundImage: `url('/images/${href}.jpg')` }}>
+  <a class=" w-full no-underline rounded-md bg-transGreen transition hover:bg-opaqueGreen" href={`/${href}`}>
+    <h2 class="m-0 text-5xl text-white py-32 text-center">{title}</h2>
+  </a>
+</li>

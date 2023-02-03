@@ -14,6 +14,8 @@ module.exports = {
         over: "400%",
       },
       colors: {
+        transGreen: "var(--transGreen)",
+        opaqueGreen: "var(--opaqueGreen)",
         darker: "var(--darker)",
         dark: "var(--dark)",
         medium: "var(--medium)",

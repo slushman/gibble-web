@@ -1,0 +1,32 @@
+---
+import type { Card as CardType } from '@types';
+
+import CityCard from 'src/components/CityCard.astro';
+
+interface Props {
+  cards: CardType[];
+  title?: string;
+}
+
+const { cards, title } = Astro.props;
+---
+<section>
+  <h2>{title}</h2>
+  <ul role="list" class="link-card-grid grid gap-4 p-0">
+    {cards.map(({ allergens, categories, href, title, website }: CardType) => (
+      <CityCard
+        allergens={allergens}
+        categories={categories}
+        href={href}
+        title={title}
+        website={website}
+      />
+    ))}
+  </ul>
+</section>
+
+<style>
+	.link-card-grid {
+		grid-template-columns: repeat(auto-fit, minmax(36ch, 1fr));
+	}
+</style>
