@@ -1,0 +1,15 @@
+---
+import City from "@layouts/City";
+import { getCityCategories, getRestaurantsAsCards } from '@utils';
+
+const allCityRestaurants = await Astro.glob('./restaurants/united-states/*.mdx');
+const cards = getRestaurantsAsCards(allCityRestaurants);
+const categories = getCityCategories(allCityRestaurants);
+---
+<City
+  cards={cards}
+  categories={categories}
+  city="united-states"
+  name="United States"
+  restaurants={allCityRestaurants}
+/>

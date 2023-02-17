@@ -1,6 +1,6 @@
 import type * as types from '@types';
 
-export const capitalizeFirst = (stringToCapitalize: string) => stringToCapitalize.charAt(0).toUpperCase() + stringToCapitalize.slice(1);
+export const capitalizeFirst = (stringToCapitalize: string) => stringToCapitalize.split('-').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
 export const unique = (data: any[]) => Array.from(new Set(data));
 
