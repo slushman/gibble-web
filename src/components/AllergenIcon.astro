@@ -1,0 +1,128 @@
+---
+interface Props {
+  allergen: string;
+  class?: string;
+}
+
+const { allergen, class: className = "w-5 h-5" } = Astro.props;
+
+// Normalize allergen name for matching
+const normalizedAllergen = allergen.toLowerCase();
+
+// Emoji mapping for different allergens and dietary preferences
+const getEmoji = (allergen: string) => {
+  // Gluten / Wheat
+  if (allergen.includes('gluten') || allergen.includes('wheat')) {
+    return '🌾';
+  }
+
+  // Dairy
+  if (allergen.includes('dairy')) {
+    return '🥛';
+  }
+
+  // Vegan
+  if (allergen.includes('vegan')) {
+    return '🌱';
+  }
+
+  // Vegetarian
+  if (allergen.includes('vegetarian')) {
+    return '🥬';
+  }
+
+  // Coconut (check before nut to avoid matching "nut" in "coconut")
+  if (allergen.includes('coconut')) {
+    return '🥥';
+  }
+
+  // Nut / Tree Nut / Peanut
+  if (allergen.includes('nut') || allergen.includes('peanut')) {
+    return '🥜';
+  }
+
+  // Soy
+  if (allergen.includes('soy')) {
+    return '🫘';
+  }
+
+  // Egg
+  if (allergen.includes('egg')) {
+    return '🥚';
+  }
+
+  // Shellfish
+  if (allergen.includes('shellfish')) {
+    return '🦐';
+  }
+
+  // Corn
+  if (allergen.includes('corn')) {
+    return '🌽';
+  }
+
+  // Sugar
+  if (allergen.includes('sugar')) {
+    return '🧊';
+  }
+
+  // Preservative
+  if (allergen.includes('preservative')) {
+    return '🧪';
+  }
+
+  // Yeast
+  if (allergen.includes('yeast')) {
+    return '🦠';
+  }
+
+  // Legume
+  if (allergen.includes('legume')) {
+    return '🫛';
+  }
+
+  // Potato
+  if (allergen.includes('potato')) {
+    return '🥔';
+  }
+
+  // Keto
+  if (allergen.includes('keto')) {
+    return '⚡';
+  }
+
+  // Paleo
+  if (allergen.includes('paleo')) {
+    return '🍖';
+  }
+
+  // Whole30
+  if (allergen.includes('whole') || allergen.includes('30')) {
+    return '✅';
+  }
+
+  // Kosher
+  if (allergen.includes('kosher')) {
+    return '✡️';
+  }
+
+  // Halal
+  if (allergen.includes('halal')) {
+    return '☪️';
+  }
+
+  // Pescatarian
+  if (allergen.includes('pescatarian')) {
+    return '🐟';
+  }
+
+  // Default
+  return '✨';
+};
+
+const emoji = getEmoji(normalizedAllergen);
+---
+
+<span class={className} style="display: inline-flex; align-items: center; justify-content: center; font-size: 1.25em;">
+  {emoji}
+</span>

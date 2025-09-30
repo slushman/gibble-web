@@ -1,0 +1,131 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import Breadcrumbs from '@components/Breadcrumbs.astro';
+import { getStateBySlug, slugify } from '@data/locations';
+
+export async function getStaticPaths() {
+  const restaurants = await getCollection('restaurants', ({ data }) => {
+    return data.draft !== true;
+  });
+
+  return restaurants.map((restaurant) => ({
+    params: { slug: restaurant.id.replace('.mdx', '') },
+    props: { restaurant },
+  }));
+}
+
+const { restaurant } = Astro.props;
+const { Content } = await restaurant.render();
+const { data } = restaurant;
+
+const stateInfo = getStateBySlug(data.state);
+const stateName = stateInfo?.name || data.state;
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: stateName, href: `/states/${data.state}` },
+  { label: data.title },
+];
+---
+
+<Layout title={`${data.title} - ${stateName} - Gibble`}>
+  <Breadcrumbs crumbs={breadcrumbs} />
+
+  <article class="max-w-4xl">
+    <!-- Header -->
+    <header class="mb-10">
+      <h1 class="text-4xl md:text-5xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-4">{data.title}</h1>
+
+      <div class="flex flex-wrap items-center gap-4 text-neutral-600 dark:text-neutral-400 mb-6">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+          </svg>
+          <span class="font-medium">{data.city}, {stateName}</span>
+        </div>
+        {data.website && (
+          <a
+            href={data.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
+          >
+            Visit Website
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        )}
+      </div>
+
+      <div class="flex flex-wrap gap-4">
+        {data.categories && data.categories.length > 0 && (
+          <div class="flex-1 min-w-[200px]">
+            <h2 class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-2">Categories</h2>
+            <div class="flex flex-wrap gap-2">
+              {data.categories.map((category: string) => (
+                <a
+                  href={`/categories/${slugify(category)}`}
+                  class="px-3 py-1.5 bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 rounded-lg text-sm font-medium border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:border-neutral-300 transition-all"
+                >
+                  {category}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {data.allergens && data.allergens.length > 0 && (
+          <div class="flex-1 min-w-[200px]">
+            <h2 class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-2">Allergen-Friendly</h2>
+            <div class="flex flex-wrap gap-2">
+              {data.allergens.map((allergen: string) => (
+                <a
+                  href={`/allergens/${slugify(allergen)}`}
+                  class="px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-lg text-sm font-medium border border-primary-200 dark:border-primary-800 hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:border-primary-300 transition-all"
+                >
+                  {allergen}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="prose prose-lg dark:prose-invert max-w-none mb-10 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 p-8">
+      <Content />
+    </div>
+
+    <!-- Videos Section -->
+    {data.videos && data.videos.length > 0 && (
+      <section class="bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900/50 dark:to-secondary-800/50 border border-secondary-200 dark:border-secondary-800 rounded-xl p-8">
+        <h2 class="text-2xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-4 flex items-center gap-2">
+          <svg class="w-6 h-6 text-secondary-600 dark:text-secondary-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+          </svg>
+          Featured Videos
+        </h2>
+        <ul class="space-y-3">
+          {data.videos.map((video: { name: string; url: string }) => (
+            <li>
+              <a
+                href={video.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-2 text-neutral-900 dark:text-neutral-100 hover:text-secondary-600 dark:hover:text-secondary-400 font-medium transition-colors group"
+              >
+                <svg class="w-5 h-5 text-secondary-600 dark:text-secondary-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                </svg>
+                <span class="group-hover:underline">{video.name}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+</Layout>

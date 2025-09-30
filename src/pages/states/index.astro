@@ -1,0 +1,135 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import Breadcrumbs from '@components/Breadcrumbs.astro';
+import { REGIONS, STATES } from '@data/locations';
+
+const restaurants = await getCollection('restaurants', ({ data }) => {
+  return data.draft !== true;
+});
+
+// Get unique states that have restaurants and count them
+const stateCounts = restaurants.reduce((acc: Record<string, number>, restaurant) => {
+  const state = restaurant.data.state;
+  acc[state] = (acc[state] || 0) + 1;
+  return acc;
+}, {});
+
+// Group states by region
+const statesByRegion = Object.entries(stateCounts).reduce((acc: Record<string, Array<{ slug: string; name: string; count: number }>>, [stateSlug, count]) => {
+  const stateInfo = STATES[stateSlug];
+  if (!stateInfo) return acc;
+
+  const region = stateInfo.region;
+  if (!acc[region]) {
+    acc[region] = [];
+  }
+  acc[region].push({
+    slug: stateSlug,
+    name: stateInfo.name,
+    count,
+  });
+  return acc;
+}, {});
+
+// Sort states within each region
+Object.keys(statesByRegion).forEach(region => {
+  statesByRegion[region].sort((a, b) => a.name.localeCompare(b.name));
+});
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Browse by State' },
+];
+
+// Create alphabetical index
+const firstLetters = new Set<string>();
+Object.values(statesByRegion).flat().forEach(state => {
+  firstLetters.add(state.name.charAt(0));
+});
+const alphabet = Array.from(firstLetters).sort();
+---
+
+<Layout title="Browse Restaurants by State - Gibble">
+  <Breadcrumbs crumbs={breadcrumbs} />
+
+  <div class="mb-8">
+    <div class="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/50 dark:to-primary-800/50 rounded-2xl p-8 border border-primary-200 dark:border-primary-800 mb-8">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-primary-700 dark:text-primary-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h1 class="text-4xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-3">Browse by State</h1>
+          <p class="text-lg text-neutral-700 dark:text-neutral-300">
+            Find allergen-friendly restaurants across the United States
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alphabet quick links -->
+    <div class="mb-6 p-5 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl">
+      <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-3">Jump to letter:</p>
+      <div class="flex flex-wrap gap-2">
+        {alphabet.map((letter) => (
+          <a href={`#letter-${letter}`} class="px-3 py-2 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:border-primary-300 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium transition-all">
+            {letter}
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <div class="space-y-12">
+    {Object.entries(REGIONS).map(([regionSlug, regionInfo]) => {
+      const regionStates = statesByRegion[regionSlug];
+      if (!regionStates || regionStates.length === 0) return null;
+
+      return (
+        <section>
+          <div class="flex items-center gap-3 mb-6">
+            <svg class="w-6 h-6 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+            </svg>
+            <h2 class="text-3xl font-display font-bold text-neutral-900 dark:text-neutral-100">
+              {regionInfo.name}
+            </h2>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {regionStates.map((state) => {
+              const firstLetter = state.name.charAt(0);
+              return (
+                <article
+                  id={`letter-${firstLetter}`}
+                  class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-5 hover:shadow-lg hover:border-primary-300 transition-all group"
+                >
+                  <a href={`/states/${state.slug}`} class="block">
+                    <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors mb-2">
+                      {state.name}
+                    </h3>
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                      {state.count} {state.count === 1 ? 'restaurant' : 'restaurants'}
+                    </p>
+                  </a>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      );
+    })}
+  </div>
+
+  <!-- Back to top -->
+  <div class="mt-12 text-center">
+    <a href="#top" class="inline-flex items-center gap-2 px-4 py-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-semibold hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+      </svg>
+      Back to top
+    </a>
+  </div>
+</Layout>

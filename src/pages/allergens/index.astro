@@ -1,0 +1,95 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import Breadcrumbs from '@components/Breadcrumbs.astro';
+import AllergenIcon from '@components/AllergenIcon.astro';
+import { slugify } from '@data/locations';
+
+const restaurants = await getCollection('restaurants', ({ data }) => {
+  return data.draft !== true;
+});
+
+// Count restaurants by allergen
+const allergenCounts = restaurants.reduce((acc: Record<string, { name: string; slug: string; count: number }>, restaurant) => {
+  restaurant.data.allergens?.forEach((allergen: string) => {
+    const slug = slugify(allergen);
+    if (!acc[slug]) {
+      acc[slug] = { name: allergen, slug, count: 0 };
+    }
+    acc[slug].count++;
+  });
+  return acc;
+}, {});
+
+const allergens = Object.values(allergenCounts).sort((a, b) => a.name.localeCompare(b.name));
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Browse by Allergen' },
+];
+---
+
+<Layout title="Browse Restaurants by Allergen - Gibble">
+  <Breadcrumbs crumbs={breadcrumbs} />
+
+  <div class="mb-8">
+    <div class="bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900/50 dark:to-secondary-800/50 rounded-2xl p-8 border border-secondary-200 dark:border-secondary-800">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 bg-white dark:bg-neutral-800 rounded-lg flex items-center justify-center shadow-sm text-2xl">
+          🏷️
+        </div>
+        <div class="flex-1">
+          <h1 class="text-4xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-3">Browse by Allergen</h1>
+          <p class="text-lg text-neutral-700 dark:text-neutral-300">
+            Find restaurants that accommodate your dietary needs
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-12">
+    {allergens.map((allergen) => (
+      <article class="bg-white dark:bg-neutral-800 border-2 border-secondary-200 dark:border-secondary-800 rounded-xl p-6 hover:shadow-lg transition-all hover:border-secondary-400 group">
+        <a href={`/allergens/${allergen.slug}`} class="block">
+          <div class="flex items-start gap-3">
+            <div class="flex-shrink-0 w-10 h-10 bg-secondary-100 dark:bg-secondary-900/30 rounded-lg flex items-center justify-center group-hover:bg-secondary-200 dark:group-hover:bg-secondary-900/40 transition-colors">
+              <AllergenIcon allergen={allergen.name} class="w-5 h-5 text-secondary-700 dark:text-secondary-300" />
+            </div>
+            <div class="flex-1">
+              <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-secondary-700 dark:group-hover:text-secondary-300 transition-colors mb-1">
+                {allergen.name}
+              </h2>
+              <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                {allergen.count} {allergen.count === 1 ? 'restaurant' : 'restaurants'}
+              </p>
+            </div>
+          </div>
+        </a>
+      </article>
+    ))}
+  </div>
+
+  <section class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-8">
+    <div class="flex items-start gap-4 mb-6">
+      <div class="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+        <svg class="w-5 h-5 text-primary-700 dark:text-primary-300" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="flex-1">
+        <h2 class="text-2xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-4">How to Use</h2>
+        <ol class="list-decimal list-inside space-y-3 text-neutral-700 dark:text-neutral-300 mb-6">
+          <li class="pl-2">Select the allergen or dietary preference you're looking for</li>
+          <li class="pl-2">Choose your state or region</li>
+          <li class="pl-2">Browse restaurants that accommodate your needs</li>
+        </ol>
+        <div class="p-4 bg-secondary-50 dark:bg-secondary-900/20 border border-secondary-200 dark:border-secondary-800 rounded-lg">
+          <p class="text-sm text-neutral-700 dark:text-neutral-300">
+            <strong class="text-secondary-800 dark:text-secondary-200">Important:</strong> Always confirm with the restaurant about your specific dietary needs and allergen concerns.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

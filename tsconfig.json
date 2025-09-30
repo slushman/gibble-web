@@ -5,10 +5,11 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "paths": {
-      "@components/*": ["src/components/*.astro"],
-      "@layouts/*": ["src/layouts/*.astro"],
+      "@components/*": ["src/components/*"],
+      "@layouts/*": ["src/layouts/*"],
       "@types": ["src/types"],
       "@utils": ["src/utils"],
-    },
-  },
+      "@data/*": ["src/data/*"]
+    }
+  }
 }

@@ -1,0 +1,210 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import Breadcrumbs from '@components/Breadcrumbs.astro';
+import AllergenIcon from '@components/AllergenIcon.astro';
+import { getStateBySlug, slugify } from '@data/locations';
+
+export async function getStaticPaths() {
+  const restaurants = await getCollection('restaurants', ({ data }) => {
+    return data.draft !== true;
+  });
+
+  const paths: any[] = [];
+
+  // Get all unique allergen/state combinations
+  const combinations = new Map<string, Set<string>>();
+
+  restaurants.forEach((restaurant) => {
+    const state = restaurant.data.state;
+    restaurant.data.allergens?.forEach((allergen: string) => {
+      const allergenSlug = slugify(allergen);
+      if (!combinations.has(allergenSlug)) {
+        combinations.set(allergenSlug, new Set());
+      }
+      combinations.get(allergenSlug)?.add(state);
+    });
+  });
+
+  combinations.forEach((states, allergenSlug) => {
+    states.forEach((state) => {
+      const stateRestaurants = restaurants.filter(
+        (r) =>
+          r.data.state === state &&
+          r.data.allergens?.some((a: string) => slugify(a) === allergenSlug)
+      );
+
+      if (stateRestaurants.length > 0) {
+        // Find the original allergen name (not slugified) from the first restaurant
+        const allergenName = stateRestaurants[0].data.allergens?.find(
+          (a: string) => slugify(a) === allergenSlug
+        ) || allergenSlug;
+
+        paths.push({
+          params: { allergen: allergenSlug, state },
+          props: {
+            restaurants: stateRestaurants.sort((a, b) =>
+              a.data.title.localeCompare(b.data.title)
+            ),
+            allergenName,
+            allergenSlug,
+          },
+        });
+      }
+    });
+  });
+
+  return paths;
+}
+
+const { restaurants, allergenName, allergenSlug } = Astro.props;
+const { state } = Astro.params;
+const stateInfo = getStateBySlug(state as string);
+const stateName = stateInfo?.name || state;
+
+// Group restaurants by city
+const restaurantsByCity = restaurants.reduce((acc: Record<string, any[]>, restaurant: any) => {
+  const city = restaurant.data.city;
+  if (!acc[city]) {
+    acc[city] = [];
+  }
+  acc[city].push(restaurant);
+  return acc;
+}, {});
+
+const cities = Object.keys(restaurantsByCity).sort();
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Allergens', href: '/allergens' },
+  { label: allergenName, href: `/allergens/${allergenSlug}` },
+  { label: stateName },
+];
+---
+
+<Layout title={`${allergenName} Restaurants in ${stateName} - Gibble`}>
+  <Breadcrumbs crumbs={breadcrumbs} />
+
+  <div class="mb-8">
+    <div class="bg-gradient-to-br from-secondary-50 via-secondary-50 to-primary-50 dark:from-secondary-900/50 dark:to-primary-900/50 rounded-2xl p-8 border border-secondary-200 dark:border-secondary-800 mb-6">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 bg-white dark:bg-neutral-800 rounded-lg flex items-center justify-center shadow-sm">
+          <AllergenIcon allergen={allergenName} class="w-6 h-6 text-secondary-700 dark:text-secondary-300" />
+        </div>
+        <div class="flex-1">
+          <h1 class="text-4xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-3">
+            {allergenName} Restaurants in {stateName}
+          </h1>
+          <div class="flex items-center gap-2 mb-4">
+            <svg class="w-5 h-5 text-secondary-600 dark:text-secondary-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+            </svg>
+            <p class="text-lg text-neutral-700 dark:text-neutral-300 font-semibold">
+              {restaurants.length} {restaurants.length === 1 ? 'restaurant' : 'restaurants'}
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <a href={`/allergens/${allergenSlug}`} class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:border-secondary-300 font-medium transition-all text-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              All {allergenName} restaurants
+            </a>
+            <a href={`/states/${state}`} class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:border-primary-300 font-medium transition-all text-sm">
+              All {stateName} restaurants
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {stateInfo?.slug === 'national' ? (
+    <div class="space-y-5">
+      {restaurants.map((restaurant: any) => (
+        <article class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-6 hover:shadow-lg hover:border-primary-300 transition-all group">
+          <h2 class="text-2xl font-display font-bold mb-3">
+            <a href={`/restaurants/${restaurant.id.replace('.mdx', '')}`} class="text-neutral-900 dark:text-neutral-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+              {restaurant.data.title}
+            </a>
+          </h2>
+          {restaurant.data.categories && restaurant.data.categories.length > 0 && (
+            <div class="flex flex-wrap gap-2 mb-3">
+              {restaurant.data.categories.map((category: string) => (
+                <span class="px-3 py-1 bg-primary-50 dark:bg-primary-900/20 text-primary-800 dark:text-primary-200 border border-primary-200 dark:border-primary-800 rounded-lg text-xs font-medium">
+                  {category}
+                </span>
+              ))}
+            </div>
+          )}
+          {restaurant.data.allergens && restaurant.data.allergens.length > 0 && (
+            <div class="flex flex-wrap gap-2">
+              {restaurant.data.allergens.map((allergen: string) => (
+                <span class="px-3 py-1 bg-secondary-50 dark:bg-secondary-900/20 text-secondary-800 dark:text-secondary-200 border border-secondary-200 dark:border-secondary-800 rounded-lg text-xs font-medium">
+                  {allergen}
+                </span>
+              ))}
+            </div>
+          )}
+        </article>
+      ))}
+    </div>
+  ) : (
+    <div class="space-y-10">
+      {cities.map((city) => (
+        <section>
+          <div class="flex items-center gap-3 mb-5">
+            <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+            </svg>
+            <h2 class="text-2xl font-display font-bold text-neutral-900 dark:text-neutral-100">
+              {city}
+            </h2>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {restaurantsByCity[city].map((restaurant: any) => (
+              <article class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-5 hover:shadow-lg hover:border-primary-300 transition-all group">
+                <h3 class="text-lg font-semibold mb-3">
+                  <a href={`/restaurants/${restaurant.id.replace('.mdx', '')}`} class="text-neutral-900 dark:text-neutral-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                    {restaurant.data.title}
+                  </a>
+                </h3>
+                {restaurant.data.categories && restaurant.data.categories.length > 0 && (
+                  <div class="flex flex-wrap gap-1.5 mb-2">
+                    {restaurant.data.categories.slice(0, 3).map((category: string) => (
+                      <span class="px-2 py-1 bg-primary-50 dark:bg-primary-900/20 text-primary-800 dark:text-primary-200 border border-primary-200 dark:border-primary-800 rounded-md text-xs font-medium">
+                        {category}
+                      </span>
+                    ))}
+                    {restaurant.data.categories.length > 3 && (
+                      <span class="px-2 py-1 bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700 rounded-md text-xs font-medium">
+                        +{restaurant.data.categories.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
+                {restaurant.data.allergens && restaurant.data.allergens.length > 0 && (
+                  <div class="flex flex-wrap gap-1.5">
+                    {restaurant.data.allergens.slice(0, 3).map((allergen: string) => (
+                      <span class="px-2 py-1 bg-secondary-50 dark:bg-secondary-900/20 text-secondary-800 dark:text-secondary-200 border border-secondary-200 dark:border-secondary-800 rounded-md text-xs font-medium">
+                        {allergen}
+                      </span>
+                    ))}
+                    {restaurant.data.allergens.length > 3 && (
+                      <span class="px-2 py-1 bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700 rounded-md text-xs font-medium">
+                        +{restaurant.data.allergens.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  )}
+</Layout>

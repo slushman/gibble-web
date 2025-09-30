@@ -1,0 +1,125 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import Breadcrumbs from '@components/Breadcrumbs.astro';
+import AllergenIcon from '@components/AllergenIcon.astro';
+import { getStateBySlug, slugify, STATES } from '@data/locations';
+
+export async function getStaticPaths() {
+  const restaurants = await getCollection('restaurants', ({ data }) => {
+    return data.draft !== true;
+  });
+
+  // Get all unique allergens
+  const allergenMap = new Map<string, string>();
+
+  restaurants.forEach((restaurant) => {
+    restaurant.data.allergens?.forEach((allergen: string) => {
+      const slug = slugify(allergen);
+      if (!allergenMap.has(slug)) {
+        allergenMap.set(slug, allergen);
+      }
+    });
+  });
+
+  return Array.from(allergenMap.entries()).map(([slug, name]) => {
+    const allergenRestaurants = restaurants.filter((r) =>
+      r.data.allergens?.some((a: string) => slugify(a) === slug)
+    );
+
+    // Group by state
+    const byState = allergenRestaurants.reduce((acc: Record<string, any[]>, r) => {
+      const state = r.data.state;
+      if (!acc[state]) {
+        acc[state] = [];
+      }
+      acc[state].push(r);
+      return acc;
+    }, {});
+
+    return {
+      params: { allergen: slug },
+      props: {
+        allergenName: name,
+        allergenSlug: slug,
+        restaurantsByState: byState,
+        totalCount: allergenRestaurants.length,
+      },
+    };
+  });
+}
+
+const { allergenName, allergenSlug, restaurantsByState, totalCount } = Astro.props;
+
+const statesWithCounts = Object.entries(restaurantsByState)
+  .map(([stateSlug, restaurants]) => ({
+    slug: stateSlug,
+    name: getStateBySlug(stateSlug)?.name || stateSlug,
+    count: (restaurants as any[]).length,
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Allergens', href: '/allergens' },
+  { label: allergenName },
+];
+---
+
+<Layout title={`${allergenName} Restaurants - Gibble`}>
+  <Breadcrumbs crumbs={breadcrumbs} />
+
+  <div class="mb-8">
+    <div class="bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900/50 dark:to-secondary-800/50 rounded-2xl p-8 border border-secondary-200 dark:border-secondary-800">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 bg-white dark:bg-neutral-800 rounded-lg flex items-center justify-center shadow-sm">
+          <AllergenIcon allergen={allergenName} class="w-6 h-6 text-secondary-700 dark:text-secondary-300" />
+        </div>
+        <div class="flex-1">
+          <h1 class="text-4xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-3">{allergenName} Restaurants</h1>
+          <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-secondary-600 dark:text-secondary-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+              </svg>
+              <p class="text-lg text-neutral-700 dark:text-neutral-300 font-semibold">
+                {totalCount} {totalCount === 1 ? 'restaurant' : 'restaurants'}
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-secondary-600 dark:text-secondary-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+              </svg>
+              <p class="text-lg text-neutral-700 dark:text-neutral-300 font-semibold">
+                {statesWithCounts.length} {statesWithCounts.length === 1 ? 'state' : 'states'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-6">
+      <svg class="w-6 h-6 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+      </svg>
+      <h2 class="text-2xl font-display font-bold text-neutral-900 dark:text-neutral-100">Browse by State</h2>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      {statesWithCounts.map((state) => (
+        <article class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-5 hover:shadow-lg hover:border-primary-300 transition-all group">
+          <a href={`/allergens/${allergenSlug}/${state.slug}`} class="block">
+            <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors mb-2">
+              {state.name}
+            </h3>
+            <p class="text-sm text-neutral-600 dark:text-neutral-400">
+              {state.count} {state.count === 1 ? 'restaurant' : 'restaurants'}
+            </p>
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</Layout>
