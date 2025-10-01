@@ -1,14 +1,30 @@
 ---
-import SiteTitle from '@components/SiteTitle';
-import { checkIsHome } from '@utils';
+import SiteTitle from '@components/SiteTitle.astro';
+import ThemeToggle from '@components/ThemeToggle.astro';
 
-const { url } = Astro.request;
-const isHome = checkIsHome(url);
+const isHome = Astro.url.pathname === '/';
 ---
-{isHome && (
-  <h1 class="text-dark"><SiteTitle /></h1>
-)}
+<nav class="flex items-center justify-between">
+  {isHome ? (
+    <h1>
+      <SiteTitle />
+    </h1>
+  ) : (
+    <div>
+      <SiteTitle />
+    </div>
+  )}
 
-{!isHome && (
-  <p class="text-dark"><SiteTitle /></p>
-)}
+  <div class="flex items-center gap-4">
+    <a href="/states" class="text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+      States
+    </a>
+    <a href="/allergens" class="text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+      Allergens
+    </a>
+    <a href="/categories" class="text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+      Categories
+    </a>
+    <ThemeToggle />
+  </div>
+</nav>

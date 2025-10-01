@@ -1,13 +1,15 @@
 ---
-import Layout from "@layouts/Layout";
+import Layout from "@layouts/Layout.astro";
 ---
 
 <Layout title="Disclaimer">
-  <h1>Disclaimer of Liability</h1>
-  <article>
-    <p>The material and information contained on this website and in videos produced by Gibble are for general information purposes only. You should not rely upon the material or information on the website or in the videos as a basis for making medical or other decisions.</p>
-    <p>While we endeavor to keep the information up-to-date and correct, Gibble makes no representation or warranties of any kind, express or implied about the completeness, accuracy, reliability, suitability, or availability concerning the website, videos, or information, products, services, or related graphics contained on the website or shown in the videos for any purpose. Any reliance you place on such material is therefore strictly at your own risk.</p>
-    <p>Gibble does not provide medical advice. Please listen to your healthcare provider regarding decisions about the foods you consume. Make sure your server and/or the restaurant management know about your dietary needs.</p>
-    <p>Gibble and its employees and representatives do not assume liability for adverse reactions to foods consumed or items one may come into contact with while eating any restaurant, recommended, presented, or spoken about or not.</p>
-  </article>
+  <div class="max-w-4xl">
+    <h1 class="text-4xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-8">Disclaimer of Liability</h1>
+    <article class="prose prose-lg dark:prose-invert max-w-none bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-8">
+      <p>The material and information contained on this website and in videos produced by Gibble are for general information purposes only. You should not rely upon the material or information on the website or in the videos as a basis for making medical or other decisions.</p>
+      <p>While we endeavor to keep the information up-to-date and correct, Gibble makes no representation or warranties of any kind, express or implied about the completeness, accuracy, reliability, suitability, or availability concerning the website, videos, or information, products, services, or related graphics contained on the website or shown in the videos for any purpose. Any reliance you place on such material is therefore strictly at your own risk.</p>
+      <p>Gibble does not provide medical advice. Please listen to your healthcare provider regarding decisions about the foods you consume. Make sure your server and/or the restaurant management know about your dietary needs.</p>
+      <p>Gibble and its employees and representatives do not assume liability for adverse reactions to foods consumed or items one may come into contact with while eating any restaurant, recommended, presented, or spoken about or not.</p>
+    </article>
+  </div>
 </Layout>

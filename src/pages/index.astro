@@ -1,25 +1,197 @@
 ---
-import Layout from "@layouts/Layout";
-import CityList from "@components/CityList";
+import { getCollection } from 'astro:content';
+import Layout from "@layouts/Layout.astro";
+import { slugify, REGIONS } from '@data/locations';
 
-const cards = [
-  {
-    href: 'united-states',
-    title: "United States",
-  },
-  {
-    href: 'denver',
-    title: "Denver",
-  },
-];
+const restaurants = await getCollection('restaurants', ({ data }) => {
+  return data.draft !== true;
+});
+
+// Count restaurants by state
+const stateCounts = restaurants.reduce((acc: Record<string, { name: string; count: number }>, restaurant) => {
+  const state = restaurant.data.state;
+  const stateInfo = restaurant.data.isNationalChain ? 'National Chains' : restaurant.data.city;
+
+  if (!acc[state]) {
+    acc[state] = { name: stateInfo, count: 0 };
+  }
+  acc[state].count++;
+  return acc;
+}, {});
+
+// Count restaurants by allergen
+const allergenCounts = restaurants.reduce((acc: Record<string, { name: string; slug: string; count: number }>, restaurant) => {
+  restaurant.data.allergens?.forEach((allergen: string) => {
+    const slug = slugify(allergen);
+    if (!acc[slug]) {
+      acc[slug] = { name: allergen, slug, count: 0 };
+    }
+    acc[slug].count++;
+  });
+  return acc;
+}, {});
+
+const topAllergens = Object.values(allergenCounts)
+  .sort((a, b) => b.count - a.count)
+  .slice(0, 6);
+
+const totalRestaurants = restaurants.length;
+const totalStates = Object.keys(stateCounts).length;
 ---
 
-<Layout title="Gibble">
-  <div class="my-4 mx-0 p-0.5 rounded-lg bg-zero bg-over bg-accent-gradiant">
-    <div class="leading-7 p-4 rounded-md bg-white opacity-90">
-      <p>Welcome to Gibble, where we help those with special diets enjoy dining out!</p>
-      <p>Select a city below to find a restaurant.</p>
+<Layout title="Gibble - Allergen-Friendly Restaurant Directory">
+  <!-- Hero Section -->
+  <div class="mb-12">
+    <div class="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/50 dark:to-primary-800/50 rounded-2xl p-8 md:p-12 border border-primary-200 dark:border-primary-800">
+      <h1 class="text-4xl md:text-5xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-4">
+        Find Allergen-Friendly Restaurants
+      </h1>
+      <p class="text-xl text-neutral-700 dark:text-neutral-300 mb-4">
+        Discover restaurants that accommodate your dietary needs
+      </p>
+      <div class="flex flex-wrap gap-4 text-neutral-600 dark:text-neutral-400">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+          </svg>
+          <span class="font-semibold">{totalRestaurants} restaurants</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+          </svg>
+          <span class="font-semibold">{totalStates} {totalStates === 1 ? 'location' : 'locations'}</span>
+        </div>
+      </div>
     </div>
   </div>
-  <CityList cards={cards} />
+
+  <!-- Primary Navigation -->
+  <section class="mb-12">
+    <h2 class="text-2xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-6">Start Your Search</h2>
+    <div class="grid gap-6 md:grid-cols-2">
+      <!-- Browse by State -->
+      <a href="/states" class="group block bg-white dark:bg-neutral-800 border-2 border-neutral-200 dark:border-neutral-700 rounded-xl p-6 hover:border-primary-400 dark:hover:border-primary-600 hover:shadow-lg transition-all">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center group-hover:bg-primary-200 dark:group-hover:bg-primary-900/40 transition-colors">
+            <svg class="w-6 h-6 text-primary-700 dark:text-primary-300" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+              Browse by Location
+            </h3>
+            <p class="text-neutral-600 dark:text-neutral-400 mb-3">
+              Find restaurants in your state or city
+            </p>
+            <span class="inline-flex items-center gap-1 text-primary-600 dark:text-primary-400 font-semibold group-hover:gap-2 transition-all">
+              View all states
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Browse by Allergen -->
+      <a href="/allergens" class="group block bg-white dark:bg-neutral-800 border-2 border-neutral-200 dark:border-neutral-700 rounded-xl p-6 hover:border-secondary-400 dark:hover:border-secondary-600 hover:shadow-lg transition-all">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-12 h-12 bg-secondary-50 dark:bg-secondary-900/30 rounded-lg flex items-center justify-center group-hover:bg-secondary-100 dark:group-hover:bg-secondary-900/40 transition-colors text-2xl shadow-sm border border-secondary-200 dark:border-secondary-800">
+            🏷️
+          </div>
+          <div class="flex-1">
+            <h3 class="text-xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-2 group-hover:text-secondary-600 dark:group-hover:text-secondary-400 transition-colors">
+              Browse by Allergen
+            </h3>
+            <p class="text-neutral-600 dark:text-neutral-400 mb-3">
+              Search by your dietary needs first
+            </p>
+            <span class="inline-flex items-center gap-1 text-secondary-600 dark:text-secondary-400 font-semibold group-hover:gap-2 transition-all">
+              View all allergens
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Popular Allergens -->
+  <section class="mb-12">
+    <h2 class="text-2xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-6">Popular Dietary Preferences</h2>
+    <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+      {topAllergens.map((allergen) => (
+        <a
+          href={`/allergens/${allergen.slug}`}
+          class="group bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-5 hover:border-primary-300 hover:shadow-md transition-all"
+        >
+          <h3 class="font-semibold text-neutral-900 dark:text-neutral-100 mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+            {allergen.name}
+          </h3>
+          <p class="text-sm text-neutral-600 dark:text-neutral-400">
+            {allergen.count} {allergen.count === 1 ? 'restaurant' : 'restaurants'}
+          </p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="mb-12 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-8">
+    <h2 class="text-2xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-6">How It Works</h2>
+    <div class="grid gap-6 md:grid-cols-4">
+      <div class="flex flex-col items-start">
+        <div class="flex items-center justify-center w-10 h-10 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-lg font-bold mb-3">
+          1
+        </div>
+        <h3 class="font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Choose</h3>
+        <p class="text-sm text-neutral-600 dark:text-neutral-400">Browse by location or dietary preference</p>
+      </div>
+      <div class="flex flex-col items-start">
+        <div class="flex items-center justify-center w-10 h-10 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-lg font-bold mb-3">
+          2
+        </div>
+        <h3 class="font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Filter</h3>
+        <p class="text-sm text-neutral-600 dark:text-neutral-400">Narrow down to restaurants that fit your needs</p>
+      </div>
+      <div class="flex flex-col items-start">
+        <div class="flex items-center justify-center w-10 h-10 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-lg font-bold mb-3">
+          3
+        </div>
+        <h3 class="font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Learn</h3>
+        <p class="text-sm text-neutral-600 dark:text-neutral-400">Read about allergen-friendly options</p>
+      </div>
+      <div class="flex flex-col items-start">
+        <div class="flex items-center justify-center w-10 h-10 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-lg font-bold mb-3">
+          4
+        </div>
+        <h3 class="font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Confirm</h3>
+        <p class="text-sm text-neutral-600 dark:text-neutral-400">Call ahead to verify your specific needs</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pro Tip -->
+  <section class="bg-gradient-to-r from-secondary-50 to-secondary-100 dark:from-secondary-900/50 dark:to-secondary-800/50 border border-secondary-200 dark:border-secondary-800 rounded-xl p-6">
+    <div class="flex gap-4">
+      <div class="flex-shrink-0">
+        <svg class="w-6 h-6 text-secondary-600 dark:text-secondary-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div>
+        <h3 class="font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Pro Tip: Find Your City Fast</h3>
+        <p class="text-neutral-700 dark:text-neutral-300 mb-2">
+          Use your browser's find feature (<kbd class="px-2 py-1 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded text-xs font-mono">Ctrl+F</kbd> or <kbd class="px-2 py-1 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded text-xs font-mono">⌘+F</kbd>) on state pages to quickly locate your city.
+        </p>
+        <p class="text-sm text-neutral-600 dark:text-neutral-400">
+          <strong>Always confirm</strong> with restaurants about your specific dietary needs and allergen concerns.
+        </p>
+      </div>
+    </div>
+  </section>
 </Layout>

@@ -1,0 +1,71 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import Breadcrumbs from '@components/Breadcrumbs.astro';
+import { slugify } from '@data/locations';
+
+const restaurants = await getCollection('restaurants', ({ data }) => {
+  return data.draft !== true;
+});
+
+// Count restaurants by category
+const categoryCounts = restaurants.reduce((acc: Record<string, { name: string; slug: string; count: number }>, restaurant) => {
+  restaurant.data.categories?.forEach((category: string) => {
+    const slug = slugify(category);
+    if (!acc[slug]) {
+      acc[slug] = { name: category, slug, count: 0 };
+    }
+    acc[slug].count++;
+  });
+  return acc;
+}, {});
+
+const categories = Object.values(categoryCounts).sort((a, b) => a.name.localeCompare(b.name));
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Browse by Category' },
+];
+---
+
+<Layout title="Browse Restaurants by Category - Gibble">
+  <Breadcrumbs crumbs={breadcrumbs} />
+
+  <div class="mb-8">
+    <div class="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/50 dark:to-primary-800/50 rounded-2xl p-8 border border-primary-200 dark:border-primary-800">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 bg-white dark:bg-neutral-800 rounded-lg flex items-center justify-center shadow-sm text-2xl">
+          🍽️
+        </div>
+        <div class="flex-1">
+          <h1 class="text-4xl font-display font-bold text-neutral-900 dark:text-neutral-100 mb-3">Browse by Category</h1>
+          <p class="text-lg text-neutral-700 dark:text-neutral-300">
+            Find restaurants by cuisine type or food category
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-12">
+    {categories.map((category) => (
+      <article class="bg-white dark:bg-neutral-800 border-2 border-primary-200 dark:border-primary-800 rounded-xl p-6 hover:shadow-lg transition-all hover:border-primary-400 group">
+        <a href={`/categories/${category.slug}`} class="block">
+          <div class="flex items-start gap-3">
+            <div class="flex-1">
+              <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors mb-2">
+                {category.name}
+              </h2>
+              <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                {category.count} {category.count === 1 ? 'restaurant' : 'restaurants'}
+              </p>
+            </div>
+            <svg class="w-5 h-5 text-neutral-400 dark:text-neutral-600 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </a>
+      </article>
+    ))}
+  </div>
+</Layout>
